@@ -18,6 +18,11 @@ import time
 
 import torch
 import torch.nn as nn
+try:
+    from tqdm import tqdm
+except ImportError:
+    def tqdm(iterable, **kwargs):
+        return iterable
 
 # ─── Re-use model definition from build_tagger ───────────────────────────────
 # We import the class directly so both scripts share one code definition.
@@ -128,7 +133,7 @@ def main():
     print(f"[run_tagger] {len(sentences)} sentences to tag.")
 
     out_lines = []
-    for words in sentences:
+    for words in tqdm(sentences, desc="Tagging"):
         tags = tag_sentence(words, vocab, model)
         # Format: word/TAG word/TAG …
         tagged = " ".join(f"{w}/{t}" for w, t in zip(words, tags))

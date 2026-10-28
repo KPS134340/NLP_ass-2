@@ -23,6 +23,11 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
+try:
+    from tqdm import tqdm
+except ImportError:
+    def tqdm(iterable, **kwargs):
+        return iterable
 
 
 # ─── Reproducibility ─────────────────────────────────────────────────────────
@@ -317,7 +322,8 @@ def evaluate(model, loader, criterion):
     model.eval()
     total_loss, correct, total = 0.0, 0, 0
     with torch.no_grad():
-        for word_ids, char_ids, tag_ids, lengths in loader:
+        for word_ids, char_ids, tag_ids, lengths in tqdm(
+                loader, desc="Evaluating", leave=False):
             word_ids = word_ids.to(DEVICE)
             char_ids = char_ids.to(DEVICE)
             tag_ids  = tag_ids.to(DEVICE)
@@ -397,7 +403,8 @@ def train(train_path):
     for epoch in range(1, EPOCHS + 1):
         model.train()
         epoch_loss = 0.0
-        for word_ids, char_ids, tag_ids, lengths in train_loader:
+        for word_ids, char_ids, tag_ids, lengths in tqdm(
+                train_loader, desc=f"  Epoch {epoch}/{EPOCHS}", leave=False):
             word_ids = word_ids.to(DEVICE)
             char_ids = char_ids.to(DEVICE)
             tag_ids  = tag_ids.to(DEVICE)
